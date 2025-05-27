@@ -3,12 +3,11 @@ import pandas as pd
 import numpy as np
 import os
 import time
-from datetime import timezone
-from datetime import datetime
+from datetime import timezone, datetime
 from sklearn.ensemble import IsolationForest
 from sklearn.preprocessing import StandardScaler
-import requests
 
+# Configuration
 ACCESS_KEY = os.getenv("LAKEFS_ACCESS_KEY_ID", "access_key")
 SECRET_KEY = os.getenv("LAKEFS_SECRET_ACCESS_KEY", "secret_key")
 LAKEFS_ENDPOINT = os.getenv("LAKEFS_ENDPOINT_URL", "http://localhost:8001/")
@@ -16,12 +15,11 @@ REPO_NAME = "dataset"
 BRANCH_NAME = "main"
 TARGET_PARQUET_FILE_PATH = "egat_datascraping/egat_realtime_power_history.parquet"
 lakefs_s3_path = f"s3a://{REPO_NAME}/{BRANCH_NAME}/{TARGET_PARQUET_FILE_PATH}"
+
 storage_options = {
     "key": ACCESS_KEY,
     "secret": SECRET_KEY,
-    "client_kwargs": {
-        "endpoint_url": LAKEFS_ENDPOINT
-    }
+    "client_kwargs": {"endpoint_url": LAKEFS_ENDPOINT}
 }
 
 REFRESH_INTERVAL_DEFAULT = 30
@@ -34,9 +32,10 @@ TEMP_COLUMN = 'temperature_C'
 
 st.set_page_config(page_title="EGAT Realtime Power Dashboard (lakeFS)", layout="wide")
 
+# Utility Functions
 def detect_anomalies(data_series, contamination_factor=0.1):
     if data_series is None or data_series.empty or data_series.isnull().all():
-        return np.array([False] * (len(data_series) if data_series is not None else 0))
+        return np.array([False] * len(data_series))
     valid_data = data_series.dropna()
     if len(valid_data) < 2:
         return np.array([False] * len(data_series))
