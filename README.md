@@ -4,35 +4,38 @@
 
 สคริปต์ถูกออกแบบมาให้สามารถทำงานได้อย่างต่อเนื่อง เพื่อเก็บข้อมูลใหม่ตามช่วงเวลาที่กำหนด
 
-## โครงสร้างโปรเจค
+
+## Structure
 
 ```
-egat-scraper-project/
-├── src/
-│   ├── __init__.py
-│   ├── scraper/
-│   │   ├── __init__.py
-│   │   └── egat_scraper.py        # Contains EGATRealTimeScraper class
-│   ├── config.py                  # Configuration settings
-│   ├── tasks.py                   # Prefect task definitions
-│   └── flows.py                   # Prefect flow definitions
-├── notebooks/
-│   └── run_scraper_and_save_to_lakefs.ipynb  # Your original notebook for reference
-├── run_scheduled_flow.py          # Script to run/deploy the Prefect flow
-├── requirements.txt               # Project dependencies
-├── docker-compose.yml             # Existing docker-compose
-└── .env                           # For environment variables (you'll create this)
+DSI321_2025/
+├── _pycache_/
+│   └── egat_pipeline.cpython-312.pyc
+├── parquet/
+│   └── egat_realtime_power_history.parquet
+├── test-scraping/
+│   ├── .ipynb_checkpoints/
+│   ├── Dockerfile
+│   ├── requirements.txt                         # Project dependencies
+│   └── run_scraper_and_save_to_lakefs.ipynb     # Your original notebook for reference
+├── UI/
+│   └── streamlit_app.py
+├── docker-compose.yml                           # Existing docker-compose
+├── egat_pipeline.py
+├── egat_realtime_power.csv
+├── prefect.yaml
+└── README.md
 ```
+
 
 ## คุณสมบัติเด่น
 
-* **ดึงข้อมูลแบบเรียลไทม์:** ดึงข้อมูลตัวเลขการผลิตไฟฟ้าล่าสุดและอุณหภูมิ
-* **วิเคราะห์ Console Log:** มีวิธีการเฉพาะในการดึงข้อมูลจากข้อความใน JavaScript Console Log ทำให้ไม่ต้องจัดการกับโครงสร้าง HTML ที่ซับซ้อน
-* **ทำงานแบบ Headless:** ใช้ Selenium กับ Chrome ในโหมด Headless (ไม่มีหน้าจอ) เพื่อการทำงานเบื้องหลังอย่างมีประสิทธิภาพ
-* **จัดการ ChromeDriver อัตโนมัติ:** ผสานการทำงานกับ `webdriver-manager` เพื่อดาวน์โหลดและจัดการเวอร์ชันของ ChromeDriver ให้ถูกต้องโดยอัตโนมัติ
-* **บันทึกข้อมูลเป็น CSV:** ต่อท้ายข้อมูลใหม่ลงในไฟล์ CSV (สร้างไฟล์ใหม่หากยังไม่มี) พร้อมทั้งบันทึกเวลาที่ทำการดึงข้อมูล (timestamp)
-* **ดึงข้อมูลต่อเนื่อง:** สามารถทำงานไปเรื่อยๆ เพื่อเก็บข้อมูลตามช่วงเวลาที่ผู้ใช้กำหนด
-* **การบันทึก Log:** มีการบันทึก Log การทำงานพื้นฐานเพื่อติดตามการทำงานของสคริปต์และปัญหาที่อาจเกิดขึ้น
+**Real-time Monitorin**: ดึงข้อมูลการผลิตไฟฟ้าจากระบบของ กฟผ. (EGAT) โดยตรง ทำให้สามารถเห็นสถานะของโครงข่ายไฟฟ้าของประเทศไทยได้ทันที
+**Automated Data Collectio**: ลดความจำเป็นในการเก็บข้อมูลด้วยตนเอง โดยใช้การดึงข้อมูลอัตโนมัติในช่วงเวลาที่สามารถกำหนดได้ ทำให้ได้ชุดข้อมูลประวัติที่สม่ำเสมอ
+**Predictive Analytics**: ใช้ forcasting model เพื่อคาดการณ์แนวโน้มความต้องการใช้ไฟฟ้า ช่วยให้สามารถวางแผนและจัดสรรทรัพยากรได้อย่างมีประสิทธิภาพ
+**Interactive Visualization**: แสดงข้อมูลการผลิตไฟฟ้าที่ซับซ้อนผ่านอินเทอร์เฟซที่ใช้งานง่าย ทำให้ทั้งผู้ใช้ที่มีความรู้ด้านเทคนิคและไม่มีพื้นฐานสามารถเข้าใจข้อมูลได้
+**Technical Innovation**: ใช้ Selenium เพื่อดึงข้อมูลจาก log ของเบราว์เซอร์แบบ dynamic แสดงถึงเทคนิคการดึงข้อมูลจากเว็บไซต์ที่ใช้ JavaScript
+**Historical Analysis**: สร้างชุดข้อมูลแบบอนุกรมเวลา (time-series) ที่สมบูรณ์ เหมาะสำหรับการวิเคราะห์แนวโน้มและการตรวจจับความผิดปกติในการผลิตไฟฟ้า
 
 ## หลักการทำงาน
 
@@ -47,34 +50,70 @@ egat-scraper-project/
 7. **ทำงานวนซ้ำ (ทางเลือก):** หากมีการเรียกใช้ `scrape_continuously` สคริปต์จะทำซ้ำขั้นตอนที่ 2-6 ตามช่วงเวลาที่กำหนด
 8. **ปิด WebDriver:** ปิดการทำงานของเบราว์เซอร์ Driver อย่างถูกต้องเมื่อสคริปต์ทำงานเสร็จหรือถูกขัดจังหวะ
 
-## สิ่งที่ต้องมีก่อนเริ่มใช้งาน
+## Resources
 
-* Python 3.7 ขึ้นไป
-* ติดตั้งเบราว์เซอร์ Google Chrome
+- **Tools Used**
+    - **Web Scraping**: Python `webdriver_manager` `Selenium`
+    - **Data Validation**: `Pydantic`
+    - **Data Storage**: `lakeFS`
+    - **Orchestration**: `Prefect`
+    - **Visualization**: `Streamlit`
+    - **CI/CD**: GitHub Actions
+
+- **Hardware Requirements**
+    - Docker-compatible environment
+    - Local or cloud system with:
+        - At least 4 GB RAM
+        - Internet access for EGAT web
+        - Port availability for Prefect UI (default: `localhost:4200`)
 
 ## การติดตั้งและตั้งค่า
 
-1. **Clone Repository (ถ้ามี) หรือบันทึกไฟล์สคริปต์:**
-```bash
-# ถ้าเป็น Repository
-# git clone <repository_url>
-# cd <repository_directory>
-```
+1- **Setup Steps**
+    - Create a virtual environment
+    ```bash
+    python -m venv .venv
+    ```
+    - Install required packages
+    ```bash
+    #Windows config
+    pip install -r test_scraping\requirements.txt
+    ```
+    ```bash
+    #mac-os
+    pip install -r test_scraping\requirements.txt
+    ```
+    - Activate the virtual environment
+    ```bash
+    #Windows config
+    source .venv/Scripts/activate
+    ```
+    ```bash
+    #mac-os
+    source .venv/bin/activate
+    ```
 
-2. **สร้าง Virtual Environment (แนะนำ):**
-```bash
-python -m venv venv
-source venv/bin/activate  # สำหรับ Windows: venv\Scripts\activate
-```
+## Running Prefect
 
-3. **ติดตั้ง Package ที่จำเป็น:**
-```txt
-pandas
-selenium
-webdriver-manager
-```
-
-จากนั้นรันคำสั่ง:
-```bash
-pip install -r requirements.txt
-```
+- Create a deployment for build, push, and pull for building Docker images, pushing code to the Docker registry, and pulling code to run the flow.
+- **If there is a PREFECT_API_URL bug, run this script first.**
+    ```bash
+    #Windows config
+    $env:PREFECT_API_URL = "http://127.0.0.1:4200/api"
+    ```
+    ```bash
+    #mac-os
+    export PREFECT_API_URL="http://127.0.0.1:4200/api"
+    ```
+- Deployments allow you to run flows on a schedule and trigger runs based on events.
+    ```bash
+    prefect deploy
+    ```
+- Start Prefect Worker to start pulling jobs from the Work Pool and Work Queue.
+    ```bash
+    pefect worker start --pool 'default-agent-pool' --work-queue 'default'
+    ```
+- Run Streamlit UI
+    ```bash
+    streamlit run UI/streamlit_app.py
+    ```
