@@ -70,11 +70,12 @@ DSI321_2025/
 ## การติดตั้งและตั้งค่า
 
 1- **Setup Steps**
-    - Create a virtual environment
+
+- Create a virtual environment
     ```bash
     python -m venv .venv
     ```
-    - Install required packages
+- Install required packages
     ```bash
     #Windows config
     pip install -r test_scraping\requirements.txt
@@ -83,7 +84,7 @@ DSI321_2025/
     #mac-os
     pip install -r test_scraping\requirements.txt
     ```
-    - Activate the virtual environment
+- Activate the virtual environment
     ```bash
     #Windows config
     source .venv/Scripts/activate
